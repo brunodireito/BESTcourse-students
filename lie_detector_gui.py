@@ -27,7 +27,7 @@ class LieDetector(tk.Tk):
         self.cached_data = None
 
         # Lie detector variables
-        self.length_of_data_for_lie_detection = 10
+        self.length_of_data_for_lie_detection = 10    # Change if want
         self.model = None
         self.acquire_data_for_lie_detection = False
         self.detect_lie_data = None
@@ -178,6 +178,8 @@ class LieDetector(tk.Tk):
             with open(filepath, 'rb') as file:
                 self.model = pickle.load(file)
                 messagebox.showinfo("Model", "Model Loaded!")
+        
+            self.load_button.config(state='disabled')
 
 
     def _detect_lie(self):
