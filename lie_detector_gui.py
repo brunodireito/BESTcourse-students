@@ -1,11 +1,14 @@
 import tkinter as tk
 import threading
 import time
+import pickle
 import numpy as np
 from tkinter import filedialog, messagebox
 from bitalino import BITalino
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
+from sklearn.neighbors import KNeighborsClassifier
+
 
 
 class LieDetector(tk.Tk):
@@ -24,7 +27,7 @@ class LieDetector(tk.Tk):
         self.cached_data = None
 
         # Lie detector variables
-        self.length_of_data_for_lie_detection = 10
+        self.length_of_data_for_lie_detection = 10    # Change if want
         self.model = None
         self.acquire_data_for_lie_detection = False
         self.detect_lie_data = None
@@ -169,11 +172,15 @@ class LieDetector(tk.Tk):
             messagebox.showerror("Connection Failed", "Failed to connect to Bitalino.")
 
     def load_model(self):
-        filepath = filedialog.askopenfilename(title="Select Model File", filetypes=[("Model Files", "*.pkl *.h5 *.joblib"), ("All Files", "*.*")])
+        filepath = filedialog.askopenfilename(title="Select Model File", filetypes=[("Model Files", "*.pkl"), ("All Files", "*.*")])
 
         if filepath:
-            print(f"Model loaded: {filepath}")
-            # Replace this with model loading logic
+            with open(filepath, 'rb') as file:
+                self.model = pickle.load(file)
+                messagebox.showinfo("Model", "Model Loaded!")
+        
+            self.load_button.config(state='disabled')
+
 
     def _detect_lie(self):
 
@@ -185,10 +192,10 @@ class LieDetector(tk.Tk):
         respiration, ecg, eda = self.decompose_data(self.detect_lie_data)
 
         # Feature extraction
-        # x = self.feature_extraction(respiration, ecg, eda)
+        x = self.feature_extraction(respiration, ecg, eda)
 
         # Detection logic
-        # y = self.model.predict(x)
+        y = self.model.predict(x)
 
         y = 1
 
@@ -322,8 +329,9 @@ class LieDetector(tk.Tk):
         """
         Introduce your logic to extract features to predict a lie
         """
+        X = np.zeros((1, 19)) # your output should be a 2D numpy array with all your features
 
-        return 0
+        return X
 
 if __name__ == "__main__":
     app = LieDetector()
